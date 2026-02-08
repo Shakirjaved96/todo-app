@@ -1,0 +1,20 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "My Persistent Task",
+      "description": "This task will be saved to file",
+      "completed": true,
+      "created_at": "2026-02-08T15:28:25.666211",
+      "updated_at": "2026-02-08T15:29:23.752902"
+    },
+    {
+      "id": 2,
+      "title": "Updated Task",
+      "description": "An updated test task",
+      "completed": false,
+      "created_at": "2026-02-08T15:29:01.365760",
+      "updated_at": "2026-02-08T15:31:06.176873"
+    }
+  ]
+}

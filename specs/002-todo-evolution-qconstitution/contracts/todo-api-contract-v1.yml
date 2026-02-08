@@ -1,0 +1,239 @@
+# API Contract: Todo API (Phase II)
+
+## Overview
+This document defines the API contract for the Todo system in Phase II (Web API with FastAPI and Neon Serverless DB).
+
+## Base URL
+`https://api.todo-evolution.com/v1`
+
+## Authentication
+All endpoints require authentication via JWT token in Authorization header:
+```
+Authorization: Bearer {jwt_token}
+```
+
+## Common Response Format
+All API responses follow this structure:
+```json
+{
+  "success": true,
+  "data": {},
+  "message": "Optional message",
+  "timestamp": "ISO 8601 timestamp"
+}
+```
+
+## Error Response Format
+All API errors follow this structure:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable error message",
+    "details": {}
+  },
+  "timestamp": "ISO 8601 timestamp"
+}
+```
+
+## Endpoints
+
+### Create Task
+- **Endpoint**: `POST /tasks`
+- **Description**: Creates a new task
+- **Request Body**:
+```json
+{
+  "title": "Task title (required)",
+  "description": "Task description (optional)",
+  "status": "pending|completed (default: pending)",
+  "priority": "low|medium|high (optional)",
+  "tags": ["tag1", "tag2"] (optional)
+}
+```
+- **Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "task": {
+      "id": 1,
+      "title": "Task title",
+      "description": "Task description",
+      "status": "pending",
+      "priority": "medium",
+      "tags": ["tag1", "tag2"],
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "user_id": 123
+    }
+  }
+}
+```
+- **Status Codes**:
+  - 201: Task created successfully
+  - 400: Invalid request body
+  - 401: Unauthorized
+  - 422: Validation error
+
+### Get All Tasks
+- **Endpoint**: `GET /tasks`
+- **Description**: Retrieves all tasks for the authenticated user
+- **Query Parameters**:
+  - `status`: Filter by status (pending|completed)
+  - `priority`: Filter by priority (low|medium|high)
+  - `limit`: Number of tasks to return (default: 20, max: 100)
+  - `offset`: Number of tasks to skip (default: 0)
+- **Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Task title",
+        "description": "Task description",
+        "status": "pending",
+        "priority": "medium",
+        "tags": ["tag1", "tag2"],
+        "created_at": "2023-01-01T00:00:00Z",
+        "updated_at": "2023-01-01T00:00:00Z",
+        "user_id": 123
+      }
+    ],
+    "total": 1,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+- **Status Codes**:
+  - 200: Tasks retrieved successfully
+  - 401: Unauthorized
+
+### Get Task by ID
+- **Endpoint**: `GET /tasks/{id}`
+- **Description**: Retrieves a specific task by ID
+- **Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "task": {
+      "id": 1,
+      "title": "Task title",
+      "description": "Task description",
+      "status": "pending",
+      "priority": "medium",
+      "tags": ["tag1", "tag2"],
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "user_id": 123
+    }
+  }
+}
+```
+- **Status Codes**:
+  - 200: Task retrieved successfully
+  - 401: Unauthorized
+  - 404: Task not found
+
+### Update Task
+- **Endpoint**: `PUT /tasks/{id}`
+- **Description**: Updates an existing task
+- **Request Body**:
+```json
+{
+  "title": "Updated task title (optional)",
+  "description": "Updated task description (optional)",
+  "status": "pending|completed|in-progress (optional)",
+  "priority": "low|medium|high (optional)",
+  "tags": ["tag1", "tag2"] (optional)"
+}
+```
+- **Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "task": {
+      "id": 1,
+      "title": "Updated task title",
+      "description": "Updated task description",
+      "status": "pending",
+      "priority": "medium",
+      "tags": ["tag1", "tag2"],
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-02T00:00:00Z",
+      "user_id": 123
+    }
+  }
+}
+```
+- **Status Codes**:
+  - 200: Task updated successfully
+  - 400: Invalid request body
+  - 401: Unauthorized
+  - 404: Task not found
+  - 422: Validation error
+
+### Delete Task
+- **Endpoint**: `DELETE /tasks/{id}`
+- **Description**: Deletes a task
+- **Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Task deleted successfully"
+  }
+}
+```
+- **Status Codes**:
+  - 200: Task deleted successfully
+  - 401: Unauthorized
+  - 404: Task not found
+
+### Toggle Task Status
+- **Endpoint**: `PATCH /tasks/{id}/status`
+- **Description**: Toggles the status of a task between pending and completed
+- **Request Body**:
+```json
+{
+  "status": "pending|completed|in-progress"
+}
+```
+- **Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "task": {
+      "id": 1,
+      "title": "Task title",
+      "description": "Task description",
+      "status": "completed",
+      "priority": "medium",
+      "tags": ["tag1", "tag2"],
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-02T00:00:00Z",
+      "user_id": 123
+    }
+  }
+}
+```
+- **Status Codes**:
+  - 200: Task status updated successfully
+  - 400: Invalid request body
+  - 401: Unauthorized
+  - 404: Task not found
+  - 422: Validation error
+
+## Error Codes
+- `INVALID_INPUT`: Request body contains invalid data
+- `TASK_NOT_FOUND`: Task with specified ID does not exist
+- `UNAUTHORIZED_ACCESS`: User is not authorized to access this resource
+- `VALIDATION_ERROR`: Request failed validation rules
+- `INTERNAL_ERROR`: An unexpected error occurred
